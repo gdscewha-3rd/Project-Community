@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "534441041157",
+    "project_id": "leafy2",
+    "storage_bucket": "leafy2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534441041157:android:93db4555402df3c3e9ab6c",
+        "android_client_info": {
+          "package_name": "com.example.leafy2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "534441041157-ml7uq44tthofd30v4u4ct3reqs1o8oq5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.leafy2",
+            "certificate_hash": "5c9c5a2796281fbc6c549e30b5a52cebaf9ffdd8"
+          }
+        },
+        {
+          "client_id": "534441041157-chuumoefabe1miosrf1osdn2d1pjbgt6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrTrNQrydLeXaF6IZE_XUNceHM7fKxI9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "534441041157-chuumoefabe1miosrf1osdn2d1pjbgt6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
