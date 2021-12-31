@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">LEAFY2</string>
+    <string name="enter_your_email">Enter email</string>
+    <string name="enter_your_password">Enter password</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="login_with_google">Login with Google</string>
 </resources>
