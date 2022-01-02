@@ -5,4 +5,13 @@
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
     <string name="login_with_google">Login with Google</string>
+    <string name="logout">logout</string>
+    <string name="check_your_email">Please check your email inbox</string>
+    <string name="failed_to_send_email">Failed to send email</string>
+    <string name="failed_to_signup">Failed to sign up</string>
+    <string name="signup_success">Sign up success</string>
+    <string name="authentication_incomplete">Email authentication is not completed</string>
+    <string name="login_failed">Failed to login</string>
+    <string name="login_success">Successfully loged in</string>
+
 </resources>
