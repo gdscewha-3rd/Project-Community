@@ -17,10 +17,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         binding.toLoginBtn.setOnClickListener{
             val intent = Intent(this, AuthActivity::class.java)
             startActivity(intent)
         }
+
+        binding.userName.setText(MyApplication.username)
     }
 
 }
