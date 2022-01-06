@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="loginpage_width">300dp</dimen>
-    <dimen name="margin_10">8dp</dimen>
+    <dimen name="margin_8">8dp</dimen>
     <dimen name="square_cardview">172dp</dimen>
     <dimen name="rect_cardview">360dp</dimen>
 

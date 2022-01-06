@@ -7,13 +7,6 @@
     android:background="@drawable/bg_main"
     tools:context=".MainActivity">
 
-<!--    <TextView-->
-<!--        android:id="@+id/user_name"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Default"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <Button
         android:id="@+id/to_login_btn"
@@ -46,6 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bubble_left"
             android:lineSpacingExtra="2dp"
             android:paddingVertical="8dp"

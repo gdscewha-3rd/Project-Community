@@ -34,6 +34,10 @@ class AuthActivity : AppCompatActivity() {
                 login()
             }
 
+            adminAccountBtn.setOnClickListener {
+                loginAsAdmin()
+            }
+
             signupBtn.setOnClickListener {
                 signBtn.visibility = View.VISIBLE
                 usernameTextfield.visibility = View.VISIBLE
@@ -58,6 +62,22 @@ class AuthActivity : AppCompatActivity() {
                 binding.passwordEt.text?.clear()
                 if(task.isSuccessful){
                     MyApplication.email = email
+                    Toast.makeText(baseContext, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }else{
+                    Toast.makeText(baseContext, getString(R.string.login_failed), Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun loginAsAdmin(){
+        MyApplication.auth.signInWithEmailAndPassword("admin1234@gmail.com", "admin1234")
+            .addOnCompleteListener(this) { task ->
+                binding.emailEt.text?.clear()
+                binding.passwordEt.text?.clear()
+                if(task.isSuccessful){
+                    MyApplication.email = "admin@gmail.com"
                     Toast.makeText(baseContext, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
