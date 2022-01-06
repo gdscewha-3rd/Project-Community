@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.userName.setText(MyApplication.username)
+        binding.greetingTv.setText(MyApplication.username+"님 안녕하세요 : )")
     }
 
 }
