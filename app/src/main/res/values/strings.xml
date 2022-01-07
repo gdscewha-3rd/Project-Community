@@ -13,5 +13,7 @@
     <string name="authentication_incomplete">Email authentication is not completed</string>
     <string name="login_failed">Failed to login</string>
     <string name="login_success">Successfully loged in</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
