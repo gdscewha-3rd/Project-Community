@@ -18,6 +18,8 @@ class StartFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
     }
 
     override fun onCreateView(
@@ -33,6 +35,7 @@ class StartFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding?.startFragment = this
+
     }
 
     fun goToChatbotFragment(){
@@ -44,7 +47,9 @@ class StartFragment : Fragment() {
     }
 
     fun goToLoginActivity(){
-//        val intent = Intent(activity, AuthActivity::class.java)
-//        startActivity(intent)
+        activity?.let{
+            val intent = Intent(context, AuthActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
