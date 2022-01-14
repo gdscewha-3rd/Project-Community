@@ -18,5 +18,13 @@
         <action
             android:id="@+id/action_startFragment_to_chatbotFragment"
             app:destination="@id/chatbotFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_diagnosisFragment"
+            app:destination="@id/diagnosisFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/diagnosisFragment"
+        android:name="com.example.leafy2.diagnosis.DiagnosisFragment"
+        android:label="fragment_diagnosis"
+        tools:layout="@layout/fragment_diagnosis" />
 </navigation>

@@ -42,6 +42,10 @@ class StartFragment : Fragment() {
         findNavController().navigate(R.id.action_startFragment_to_chatbotFragment)
     }
 
+    fun goToDiagnosisFragment(){
+        findNavController().navigate(R.id.action_startFragment_to_diagnosisFragment)
+    }
+
     fun setGreetingText(){
         binding?.greetingTv?.setText(MyApplication.username+"님 안녕하세요 : )")
     }
