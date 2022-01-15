@@ -47,7 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:gravity="right"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
             <Button
                 android:id="@+id/re_capture_btn"
                 android:layout_width="wrap_content"
