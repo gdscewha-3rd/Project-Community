@@ -219,16 +219,16 @@ class DiagnosisFragment : Fragment() {
 
     fun setResultTv(label: String){
         when(label){
-            "\"건강\"" -> {
+            "건강" -> {
                 resultTv.setText(getString(R.string.result_healthy))
             }
-            "\"화상\"" -> {
+            "화상" -> {
                 resultTv.setText(getString(R.string.result_sunburn))
             }
-            "\"과습\"" -> {
+            "과습" -> {
                 resultTv.setText(getString(R.string.result_overwatered))
             }
-            "\"수분부족\"" ->{
+            "수분부족" ->{
                 resultTv.setText(getString(R.string.result_dry))
             }
         }
