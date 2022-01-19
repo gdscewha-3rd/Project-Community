@@ -55,10 +55,9 @@
                 android:paddingVertical="8dp"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/black"
-                android:text="OOO님 안녕하세요 : )"
+                android:text="개발자님 안녕하세요 : )"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="개발자님 안녕하세요 : )" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -105,7 +104,7 @@
                             android:id="@+id/temperature_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="25sp"
                             tools:text="00" />
                         <TextView
                             android:id="@+id/weather_tv"
@@ -113,16 +112,17 @@
                             android:layout_height="wrap_content"
                             tools:text="Sunny"/>
                     </LinearLayout>
+
                     <TextView
                         android:id="@+id/weather_tip_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_toEndOf="@id/weather_txt_container"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
-                        android:text="@string/weather_loading"/>
+                        android:layout_toEndOf="@id/weather_txt_container"
+                        android:text="@string/weather_loading" />
 
                 </RelativeLayout>
 

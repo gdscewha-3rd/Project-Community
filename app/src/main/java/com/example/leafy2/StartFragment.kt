@@ -88,7 +88,6 @@ class StartFragment : Fragment() {
             doNetworking(params)
         }
 
-
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -120,7 +119,6 @@ class StartFragment : Fragment() {
                     updateWeather(weatherData)
                 }
             }
-
         })
     }
 
@@ -129,6 +127,29 @@ class StartFragment : Fragment() {
         weatherState.setText(weather.weatherType)
         val resourceID = resources.getIdentifier(weather.icon, "drawable", activity?.packageName)
         weatherIcon.setImageResource(resourceID)
+        weatherTip.setText(getNewTip(weather.tempInt, weather.icon))
+    }
+
+    private fun getNewTip(temperature: Int, weather: String): String{
+        var newTip: String = ""
+        if(temperature>35){
+            newTip = getString(R.string.weather_hot)
+        }else if (temperature in 10..35){
+            if(weather=="clear"){
+                newTip = getString(R.string.weather_hot)
+            }else if(weather=="thunderstorm"||weather=="lightrain"||weather=="rain"){
+                newTip = getString(R.string.weather_humid)
+            }else if(weather=="snow"){
+                newTip = getString(R.string.weather_snow)
+            }else if(weather=="cloudy"||weather=="fog"||weather=="overcast"){
+                newTip = getString(R.string.weather_gray)
+            }else{
+                newTip = weather+getString(R.string.weather_error)
+            }
+        }else{
+            newTip = getString(R.string.weather_cold)
+        }
+        return newTip
     }
 
     override fun onPause() {

@@ -11,24 +11,7 @@ class WeatherData{
     lateinit var icon: String
     lateinit var weatherType: String
     private var weatherId: Int = 0
-    private var tempInt: Int =0
-
-
-    fun WeatherData(jsonObject: JSONObject): WeatherData? {
-        try{
-            var weatherData = WeatherData()
-            weatherData.weatherId = jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id")
-            weatherData.weatherType = jsonObject.getJSONArray("weather").getJSONObject(0).getString("main")
-            weatherData.icon = updateWeatherIcon(weatherData.weatherId)
-            val roundedTemp: Int = Math.rint(jsonObject.getJSONObject("main").getDouble("temp")-273.15) as Int
-            weatherData.tempString = roundedTemp.toString()
-            weatherData.tempInt = roundedTemp
-            return weatherData
-        }catch (e: JSONException){
-            e.printStackTrace()
-            return null
-        }
-    }
+    var tempInt: Int = 0
 
     fun fromJson(jsonObject: JSONObject?): WeatherData? {
         try{
@@ -77,6 +60,5 @@ class WeatherData{
         } else "dunno"
 
     }
-
 
 }
