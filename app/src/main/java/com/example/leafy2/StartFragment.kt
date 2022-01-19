@@ -8,13 +8,12 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.leafy2.databinding.FragmentStartBinding
 import com.example.leafy2.login.AuthActivity
@@ -46,7 +45,7 @@ class StartFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
+        setHasOptionsMenu(true)
 
     }
 
@@ -70,6 +69,24 @@ class StartFragment : Fragment() {
             weatherIcon = weatherIc
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.layout_menu, menu)
+
+        return super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.user_setting -> {
+                goToLoginActivity()
+                return true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     override fun onResume() {

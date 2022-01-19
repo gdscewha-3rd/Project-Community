@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/user_setting"
+        android:icon="@drawable/ic_user"
+        android:iconTint="@color/white"
+        app:showAsAction="always"
+        android:title="user_setting" />
+</menu>
