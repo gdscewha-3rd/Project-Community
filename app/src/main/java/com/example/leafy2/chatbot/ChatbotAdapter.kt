@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.leafy2.R
 
 class ChatbotAdapter(
-    private val context: ChatbotFragment,
+    context: Context,
     private val chatModelArrayList: List<ChatModel>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".diagnosis.DiagnosisFragment">
+
+    <data>
+        <variable
+            name="diagnosisFragment"
+            type="com.example.leafy2.diagnosis.DiagnosisFragment" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="360dp"
+        android:layout_height="600dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/capture_iv"
+            android:layout_width="328dp"
+            android:layout_height="328dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+
+            app:srcCompat="@drawable/leafy_round"
+            tools:srcCompat="@tools:sample/avatars">
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/result_tv"
+            android:layout_width="328dp"
+            android:layout_height="164dp"
+            android:layout_below="@id/capture_iv"
+            android:layout_marginHorizontal="16dp"
+            android:padding="16dp"
+            android:gravity="center"
+
+            android:text="사진을 찍어 다육식물의 상태를 진단해보세요!" />
+
+        <LinearLayout
+            android:id="@+id/btn_container"
+            android:layout_below="@id/result_tv"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:visibility="gone">
+            <Button
+                android:id="@+id/re_capture_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="재촬영"
+                style="?attr/materialButtonOutlinedStyle"/>
+
+            <Button
+                android:id="@+id/save_btn"
+                android:layout_marginLeft="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기록하기"/>
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+
+</layout>

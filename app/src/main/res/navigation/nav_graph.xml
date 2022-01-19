@@ -8,15 +8,23 @@
     <fragment
         android:id="@+id/chatbotFragment"
         android:name="com.example.leafy2.chatbot.ChatbotFragment"
-        android:label="fragment_chatbot"
+        android:label="닥터 리피"
         tools:layout="@layout/fragment_chatbot" />
     <fragment
         android:id="@+id/startFragment"
         android:name="com.example.leafy2.StartFragment"
-        android:label="fragment_start"
-        tools:layout="@layout/fragment_start" >
+        android:label="Leafy2"
+        tools:layout="@layout/fragment_start">
         <action
             android:id="@+id/action_startFragment_to_chatbotFragment"
             app:destination="@id/chatbotFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_diagnosisFragment"
+            app:destination="@id/diagnosisFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/diagnosisFragment"
+        android:name="com.example.leafy2.diagnosis.DiagnosisFragment"
+        android:label="진단하기"
+        tools:layout="@layout/fragment_diagnosis" />
 </navigation>

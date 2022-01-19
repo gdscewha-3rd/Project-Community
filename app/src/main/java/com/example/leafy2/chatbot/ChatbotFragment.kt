@@ -60,9 +60,9 @@ class ChatbotFragment : Fragment() {
         }
 
         chatModelArrayList = ArrayList<ChatModel>()
-        chatbotAdapter = ChatbotAdapter(this, chatModelArrayList)
+        chatbotAdapter = ChatbotAdapter(requireContext(), chatModelArrayList)
         recyclerView.adapter = chatbotAdapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         sendBtn.setOnClickListener {
             sendMsg()
         }
