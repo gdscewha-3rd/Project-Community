@@ -28,5 +28,6 @@
     <string name="weather_gray">오늘은 날이 흐리네요 😧 최대한 햇빛을 볼 수 있게 해주세요!</string>
     <string name="weather_error"> 에 대한 정보를 불러올 수 없습니다.</string>
     <string name="weather_cold">날씨가 추워요! 실내에 두고, 냉해를 주의하세요. 🥶</string>
+    <string name="click">Click 👇</string>
 
 </resources>

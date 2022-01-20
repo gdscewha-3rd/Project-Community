@@ -7,9 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.PorterDuffXfermode
-import android.media.Image
+
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -22,7 +20,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentDiagnosisBinding
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
@@ -42,6 +39,11 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.util.*
 import kotlin.math.min
+
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+
+
 
 class DiagnosisFragment : Fragment() {
 
@@ -88,6 +90,13 @@ class DiagnosisFragment : Fragment() {
         }catch (e: Exception){
             e.printStackTrace()
         }
+
+        val animation: Animation
+        animation = AnimationUtils.loadAnimation(
+            requireContext(),
+            com.example.leafy2.R.anim.blink
+        )
+        binding.clickTv.startAnimation(animation)
 
     }
 
@@ -220,16 +229,16 @@ class DiagnosisFragment : Fragment() {
     fun setResultTv(label: String){
         when(label){
             "건강" -> {
-                resultTv.setText(getString(R.string.result_healthy))
+                resultTv.setText(getString(com.example.leafy2.R.string.result_healthy))
             }
             "화상" -> {
-                resultTv.setText(getString(R.string.result_sunburn))
+                resultTv.setText(getString(com.example.leafy2.R.string.result_sunburn))
             }
             "과습" -> {
-                resultTv.setText(getString(R.string.result_overwatered))
+                resultTv.setText(getString(com.example.leafy2.R.string.result_overwatered))
             }
             "수분부족" ->{
-                resultTv.setText(getString(R.string.result_dry))
+                resultTv.setText(getString(com.example.leafy2.R.string.result_dry))
             }
         }
         binding.btnContainer.visibility = View.VISIBLE
