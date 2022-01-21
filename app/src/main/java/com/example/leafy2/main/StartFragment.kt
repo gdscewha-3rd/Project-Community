@@ -1,10 +1,9 @@
-package com.example.leafy2
+package com.example.leafy2.main
 
 import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -13,11 +12,12 @@ import androidx.fragment.app.Fragment
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.leafy2.MyApplication
+import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
 import com.example.leafy2.login.AuthActivity
-import com.google.gson.Gson
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestParams
@@ -27,20 +27,25 @@ import org.json.JSONObject
 
 class StartFragment : Fragment() {
 
-    val API_KEY: String = "ac5471e3caa6df5bb40fbe111f57c735"
-    val WEATHER_URL: String = "https://api.openweathermap.org/data/2.5/weather"
-    val MIN_TIME: Long = 5000
-    val MIN_DISTANCE: Float = 1000F
-    val WEATHER_REQUEST: Int = 102
+    companion object{
+        const val API_KEY: String = "ac5471e3caa6df5bb40fbe111f57c735"
+        const val WEATHER_URL: String = "https://api.openweathermap.org/data/2.5/weather"
+        const val MIN_TIME: Long = 5000
+        const val MIN_DISTANCE: Float = 1000F
+        const val WEATHER_REQUEST: Int = 102
+    }
 
-    private var binding: FragmentStartBinding?= null
-    private lateinit var weatherState: TextView
-    private lateinit var temperature: TextView
+
+
+    private lateinit var binding: FragmentStartBinding
+
     private lateinit var weatherTip: TextView
     private lateinit var weatherIcon: ImageView
 
     private lateinit var mLocationManager: LocationManager
     private lateinit var mLocationListener: LocationListener
+
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +66,18 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding?.startFragment = this
-        binding?.apply {
-            temperature = temperatureTv
-            weatherState = weatherTv
-            weatherTip = weatherTipTv
-            weatherIcon = weatherIc
-        }
+        binding.startFragment = this
+
+
+        viewModel.temperature.observe(
+            viewLifecycleOwner, {temperature -> binding.temperatureTv.text = temperature+" ℃"}
+        )
+        viewModel.weatherState.observe(
+            viewLifecycleOwner, {weatherState -> binding.weatherTv.text = weatherState}
+        )
+
+        weatherTip = binding.weatherTipTv
+        weatherIcon = binding.weatherIc
 
     }
 
@@ -131,49 +141,33 @@ class StartFragment : Fragment() {
                 headers: Array<out Header>?,
                 response: JSONObject?
             ) {
-                val weatherData = WeatherData().fromJson(response)
-                if (weatherData != null) {
-                    updateWeather(weatherData)
-                }
+                viewModel.fromJson(response)
+                updateWeather()
             }
         })
     }
 
-    private fun updateWeather(weather: WeatherData) {
-        temperature.setText(weather.tempString+" ℃")
-        weatherState.setText(weather.weatherType)
-        val resourceID = resources.getIdentifier(weather.icon, "drawable", activity?.packageName)
+    private fun updateWeather() {
+        val resourceID = resources.getIdentifier(viewModel.weatherIcon.value, "drawable", activity?.packageName)
         weatherIcon.setImageResource(resourceID)
-        weatherTip.setText(getNewTip(weather.tempInt, weather.icon))
+        weatherTip.text = getNewTip()
     }
 
-    private fun getNewTip(temperature: Int, weather: String): String{
-        var newTip: String = ""
-        if(temperature>35){
-            newTip = getString(R.string.weather_hot)
-        }else if (temperature in 10..35){
-            if(weather=="clear"){
-                newTip = getString(R.string.weather_hot)
-            }else if(weather=="thunderstorm"||weather=="lightrain"||weather=="rain"){
-                newTip = getString(R.string.weather_humid)
-            }else if(weather=="snow"){
-                newTip = getString(R.string.weather_snow)
-            }else if(weather=="cloudy"||weather=="fog"||weather=="overcast"){
-                newTip = getString(R.string.weather_gray)
-            }else{
-                newTip = weather+getString(R.string.weather_error)
-            }
-        }else{
-            newTip = getString(R.string.weather_cold)
+    private fun getNewTip(): String{
+        return when(viewModel.weatherTip.value){
+            0 -> getString(R.string.weather_hot)
+            1 -> getString(R.string.weather_good)
+            2 -> getString(R.string.weather_humid)
+            3 -> getString(R.string.weather_snow)
+            4 -> getString(R.string.weather_gray)
+            5 -> getString(R.string.weather_error)
+            else -> getString(R.string.weather_cold)
         }
-        return newTip
     }
 
     override fun onPause() {
         super.onPause()
-        if(mLocationManager!=null){
-            mLocationManager.removeUpdates(mLocationListener)
-        }
+        mLocationManager.removeUpdates(mLocationListener)
     }
 
     fun goToChatbotFragment(){
@@ -185,7 +179,7 @@ class StartFragment : Fragment() {
     }
 
     fun setGreetingText(){
-        binding?.greetingTv?.setText(MyApplication.username+"님 안녕하세요 : )")
+        binding?.greetingTv?.setText(MyApplication.username +"님 안녕하세요 : )")
     }
 
     fun goToLoginActivity(){

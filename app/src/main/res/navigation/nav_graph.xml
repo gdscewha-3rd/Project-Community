@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_chatbot" />
     <fragment
         android:id="@+id/startFragment"
-        android:name="com.example.leafy2.StartFragment"
+        android:name="com.example.leafy2.main.StartFragment"
         android:label="Leafy2"
         tools:layout="@layout/fragment_start">
         <action
