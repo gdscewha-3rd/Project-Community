@@ -79,6 +79,8 @@ class StartFragment : Fragment() {
         weatherTip = binding.weatherTipTv
         weatherIcon = binding.weatherIc
 
+        binding.toCalendar.setOnClickListener { goToCalendarFragment() }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -178,8 +180,8 @@ class StartFragment : Fragment() {
         findNavController().navigate(R.id.action_startFragment_to_diagnosisFragment)
     }
 
-    fun setGreetingText(){
-        binding?.greetingTv?.setText(MyApplication.username +"님 안녕하세요 : )")
+    fun goToCalendarFragment(){
+        findNavController().navigate(R.id.action_startFragment_to_calendarFragment)
     }
 
     fun goToLoginActivity(){
@@ -187,5 +189,9 @@ class StartFragment : Fragment() {
             val intent = Intent(context, AuthActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    fun setGreetingText(){
+        binding?.greetingTv?.setText(MyApplication.username +"님 안녕하세요 : )")
     }
 }

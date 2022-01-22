@@ -15,9 +15,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.leafy2.databinding.FragmentDiagnosisBinding
@@ -42,18 +39,18 @@ import kotlin.math.min
 
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-
+import android.widget.*
 
 
 class DiagnosisFragment : Fragment() {
 
-    val CAMERA = arrayOf(android.Manifest.permission.CAMERA)
-    val CAMERA_REQUEST = 98
-
     private lateinit var binding: FragmentDiagnosisBinding
 
-    private lateinit var resultTv: TextView
+    private lateinit var result: TextView
     private lateinit var image: ImageView
+    private lateinit var save: Button
+    private lateinit var recapture: Button
+    private lateinit var click: TextView
 
     protected lateinit var tflite: Interpreter
     private lateinit var inputImageBuffer: TensorImage
@@ -73,17 +70,23 @@ class DiagnosisFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDiagnosisBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        resultTv = binding.resultTv
-        binding.captureIv.setOnClickListener { takePhoto() }
-        image = binding.captureIv
+
+        binding.apply {
+            result = resultTv
+            captureIv.setOnClickListener { takePhoto() }
+            reCaptureBtn.setOnClickListener { takePhoto() }
+            image = captureIv
+            click = clickTv
+            recapture = reCaptureBtn
+            save = saveBtn
+        }
 
         try{
             tflite = loadModel(this)?.let { Interpreter(it) }!!
@@ -91,16 +94,15 @@ class DiagnosisFragment : Fragment() {
             e.printStackTrace()
         }
 
-        val animation: Animation
-        animation = AnimationUtils.loadAnimation(
+        val animation: Animation = AnimationUtils.loadAnimation(
             requireContext(),
             com.example.leafy2.R.anim.blink
         )
-        binding.clickTv.startAnimation(animation)
+        click.startAnimation(animation)
 
     }
 
-    fun loadModel(frag: DiagnosisFragment): MappedByteBuffer?{
+    private fun loadModel(frag: DiagnosisFragment): MappedByteBuffer?{
         val fileDescriptor: AssetFileDescriptor? = frag.activity?.assets?.openFd("model.tflite")
         val inputStream: FileInputStream = FileInputStream(fileDescriptor?.fileDescriptor)
         val fileChannel: FileChannel = inputStream.channel
@@ -114,9 +116,9 @@ class DiagnosisFragment : Fragment() {
     }
 
     private fun takePhoto(){
-        if(checkPermission(CAMERA)){
+        if(checkPermission(Companion.CAMERA)){
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, CAMERA_REQUEST)
+            startActivityForResult(intent, Companion.CAMERA_REQUEST)
         }
     }
 
@@ -124,7 +126,9 @@ class DiagnosisFragment : Fragment() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             for( permission in permissions){
                 if(context?.let { ContextCompat.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(context as Activity, permissions, CAMERA_REQUEST)
+                    ActivityCompat.requestPermissions(context as Activity, permissions,
+                        Companion.CAMERA_REQUEST
+                    )
                     return false
                 }
             }
@@ -138,7 +142,7 @@ class DiagnosisFragment : Fragment() {
         grantResults: IntArray
     ) {
         when(requestCode){
-            CAMERA_REQUEST -> {
+            Companion.CAMERA_REQUEST -> {
                 for(grant in grantResults){
                     if(grant != PackageManager.PERMISSION_GRANTED){
                         Toast.makeText(context, "카메라 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
@@ -152,7 +156,7 @@ class DiagnosisFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode==RESULT_OK){
             when (requestCode){
-                CAMERA_REQUEST -> {
+                Companion.CAMERA_REQUEST -> {
                     bitmap = data?.extras?.get("data") as Bitmap
                     image?.setImageBitmap(bitmap)
                     classifyImage()
@@ -161,7 +165,7 @@ class DiagnosisFragment : Fragment() {
         }
     }
 
-    fun classifyImage(){
+    private fun classifyImage(){
         var imageTensorIndex = 0
         var imageShape = tflite.getInputTensor(imageTensorIndex).shape()
         imageSizeX = imageShape[2]
@@ -204,8 +208,7 @@ class DiagnosisFragment : Fragment() {
         return NormalizeOp(0.0f, 1.0f)
     }
 
-    fun showResult(){
-        //labels = context?.let { FileUtil.loadLabels(it, "label.txt") } as List<String>
+    private fun showResult(){
         try {
             labels = activity?.let { FileUtil.loadLabels(it, "label.txt") } as List<String>
         }catch (e: Exception){
@@ -216,12 +219,10 @@ class DiagnosisFragment : Fragment() {
 
 
         val maxValueInMap = (Collections.max(labeledProbability.values))
-        var resultLabelTxt: String?=null
 
         for(entry in labeledProbability.entries){
             if(entry.value==maxValueInMap){
-                resultLabelTxt = entry.key
-                setResultTv(resultLabelTxt)
+                setResultTv(entry.key)
             }
         }
     }
@@ -229,18 +230,26 @@ class DiagnosisFragment : Fragment() {
     fun setResultTv(label: String){
         when(label){
             "건강" -> {
-                resultTv.setText(getString(com.example.leafy2.R.string.result_healthy))
+                result.text = getString(com.example.leafy2.R.string.result_healthy)
             }
             "화상" -> {
-                resultTv.setText(getString(com.example.leafy2.R.string.result_sunburn))
+                result.text = getString(com.example.leafy2.R.string.result_sunburn)
             }
             "과습" -> {
-                resultTv.setText(getString(com.example.leafy2.R.string.result_overwatered))
+                result.text = getString(com.example.leafy2.R.string.result_overwatered)
             }
             "수분부족" ->{
-                resultTv.setText(getString(com.example.leafy2.R.string.result_dry))
+                result.text = getString(com.example.leafy2.R.string.result_dry)
             }
         }
-        binding.btnContainer.visibility = View.VISIBLE
+        recapture.visibility = View.VISIBLE
+        save.visibility = View.VISIBLE
+        click.clearAnimation()
+        click.visibility = View.GONE
+    }
+
+    companion object {
+        private const val CAMERA_REQUEST = 98
+        private val CAMERA = arrayOf(android.Manifest.permission.CAMERA)
     }
 }
