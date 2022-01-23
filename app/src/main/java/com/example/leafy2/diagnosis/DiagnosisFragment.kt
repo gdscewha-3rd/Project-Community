@@ -2,7 +2,6 @@ package com.example.leafy2.diagnosis
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
@@ -29,7 +28,6 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.io.File
 import java.io.FileInputStream
 import java.lang.Exception
 import java.nio.MappedByteBuffer
@@ -40,6 +38,19 @@ import kotlin.math.min
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
+import com.example.leafy2.UserData
+import com.example.leafy2.calendar.RecordData
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
 
 
 class DiagnosisFragment : Fragment() {
@@ -61,6 +72,13 @@ class DiagnosisFragment : Fragment() {
     private var imageSizeY: Int = 0
     private lateinit var bitmap: Bitmap
     private lateinit var labels: List<String>
+    private lateinit var time: String
+
+    private lateinit var mDatabaseReference: DatabaseReference
+    private lateinit var mUser: FirebaseUser
+    private lateinit var userId: String
+    private lateinit var mStorageReference: StorageReference
+    lateinit var mProfileReference: StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +104,7 @@ class DiagnosisFragment : Fragment() {
             click = clickTv
             recapture = reCaptureBtn
             save = saveBtn
+            saveBtn.setOnClickListener { addRecord() }
         }
 
         try{
@@ -94,11 +113,37 @@ class DiagnosisFragment : Fragment() {
             e.printStackTrace()
         }
 
+        mDatabaseReference = Firebase.database.reference
+        mUser = FirebaseAuth.getInstance().currentUser!!
+        userId = if(mUser!=null) mUser.uid else ""
+        mStorageReference = FirebaseStorage.getInstance().reference
+        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+
         val animation: Animation = AnimationUtils.loadAnimation(
             requireContext(),
             com.example.leafy2.R.anim.blink
         )
         click.startAnimation(animation)
+
+    }
+
+    private fun addRecord(){
+        Toast.makeText(requireContext(), "기록 중입니다.", Toast.LENGTH_SHORT).show()
+
+        var baos: ByteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+        mProfileReference = mStorageReference.child("image").child(userId).child(time)
+        val uploadTask = mProfileReference.putBytes(data)
+
+        uploadTask.addOnFailureListener{
+            Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
+        }.addOnSuccessListener(OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
+            taskSnapshot.storage.downloadUrl.addOnCompleteListener {
+                val imageUrl = it.toString()
+            }
+            Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
+        })
 
     }
 
@@ -158,7 +203,7 @@ class DiagnosisFragment : Fragment() {
             when (requestCode){
                 Companion.CAMERA_REQUEST -> {
                     bitmap = data?.extras?.get("data") as Bitmap
-                    image?.setImageBitmap(bitmap)
+                    image.setImageBitmap(bitmap)
                     classifyImage()
                 }
             }
@@ -166,8 +211,8 @@ class DiagnosisFragment : Fragment() {
     }
 
     private fun classifyImage(){
-        var imageTensorIndex = 0
-        var imageShape = tflite.getInputTensor(imageTensorIndex).shape()
+        val imageTensorIndex = 0
+        val imageShape = tflite.getInputTensor(imageTensorIndex).shape()
         imageSizeX = imageShape[2]
         imageSizeY = imageShape[1]
         val imageDataType = tflite.getInputTensor(imageTensorIndex).dataType()
@@ -246,6 +291,11 @@ class DiagnosisFragment : Fragment() {
         save.visibility = View.VISIBLE
         click.clearAnimation()
         click.visibility = View.GONE
+        val dateToday: Date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+        time = dateFormat.format(dateToday)
+
+
     }
 
     companion object {

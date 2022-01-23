@@ -18,6 +18,9 @@ import com.example.leafy2.MyApplication
 import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
 import com.example.leafy2.login.AuthActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestParams
@@ -45,12 +48,16 @@ class StartFragment : Fragment() {
     private lateinit var mLocationManager: LocationManager
     private lateinit var mLocationListener: LocationListener
 
+    private lateinit var auth: FirebaseAuth
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
+
+        auth = Firebase.auth
 
     }
 
@@ -80,6 +87,11 @@ class StartFragment : Fragment() {
         weatherIcon = binding.weatherIc
 
         binding.toCalendar.setOnClickListener { goToCalendarFragment() }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
 
     }
 
