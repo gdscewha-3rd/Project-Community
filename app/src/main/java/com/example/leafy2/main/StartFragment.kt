@@ -11,13 +11,13 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.leafy2.MyApplication
 import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
-import com.example.leafy2.login.AuthActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -197,10 +197,17 @@ class StartFragment : Fragment() {
     }
 
     fun goToLoginActivity(){
-        activity?.let{
-            val intent = Intent(context, AuthActivity::class.java)
-            startActivity(intent)
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            // 로그인 상태, 유저 정보 페이지로 이동
+            Toast.makeText(requireContext(), "you are already logged in", Toast.LENGTH_SHORT).show()
+            // 임시 로그아웃, 유저 정보 페이지에서 로그아웃 하도록 수정
+            Firebase.auth.signOut()
+        }else{
+            // 로그인 페이지로 이동
+            findNavController().navigate(R.id.action_startFragment_to_authFragment)
         }
+
     }
 
     fun setGreetingText(){
