@@ -88,6 +88,15 @@ class StartFragment : Fragment() {
 
         binding.toCalendar.setOnClickListener { goToCalendarFragment() }
 
+        binding.toChat.setOnClickListener { goToChatbotFragment() }
+
+        binding.toDiagnose.setOnClickListener { goToDiagnosisFragment() }
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            // 이름 변경
+        }
+
     }
 
     override fun onStart() {
@@ -184,19 +193,19 @@ class StartFragment : Fragment() {
         mLocationManager.removeUpdates(mLocationListener)
     }
 
-    fun goToChatbotFragment(){
+    private fun goToChatbotFragment(){
         findNavController().navigate(R.id.action_startFragment_to_chatbotFragment)
     }
 
-    fun goToDiagnosisFragment(){
+    private fun goToDiagnosisFragment(){
         findNavController().navigate(R.id.action_startFragment_to_diagnosisFragment)
     }
 
-    fun goToCalendarFragment(){
+    private fun goToCalendarFragment(){
         findNavController().navigate(R.id.action_startFragment_to_calendarFragment)
     }
 
-    fun goToLoginActivity(){
+    private fun goToLoginActivity(){
         val user = FirebaseAuth.getInstance().currentUser
         if(user!=null){
             // 로그인 상태, 유저 정보 페이지로 이동

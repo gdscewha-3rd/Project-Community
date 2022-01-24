@@ -114,11 +114,7 @@ class DiagnosisFragment : Fragment() {
             e.printStackTrace()
         }
 
-        mDatabaseReference = FirebaseDatabase.getInstance().reference
-        mUser = FirebaseAuth.getInstance().currentUser!!
-        userId = if(mUser!=null) mUser.uid else ""
-        mStorageReference = Firebase.storage.reference
-        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+
 
         val animation: Animation = AnimationUtils.loadAnimation(
             requireContext(),
@@ -129,6 +125,14 @@ class DiagnosisFragment : Fragment() {
     }
 
     private fun addRecord(){
+
+        mDatabaseReference = FirebaseDatabase.getInstance().reference
+        mUser = FirebaseAuth.getInstance().currentUser!!
+        userId = if(mUser!=null) mUser.uid else ""
+        mStorageReference = Firebase.storage.reference
+        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+
+
         Toast.makeText(requireContext(), "기록 중입니다.", Toast.LENGTH_SHORT).show()
 
         var baos: ByteArrayOutputStream = ByteArrayOutputStream()
