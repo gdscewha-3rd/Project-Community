@@ -44,11 +44,12 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import com.google.firebase.database.ktx.database
+
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
+import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 
@@ -113,10 +114,10 @@ class DiagnosisFragment : Fragment() {
             e.printStackTrace()
         }
 
-        mDatabaseReference = Firebase.database.reference
+        mDatabaseReference = FirebaseDatabase.getInstance().reference
         mUser = FirebaseAuth.getInstance().currentUser!!
         userId = if(mUser!=null) mUser.uid else ""
-        mStorageReference = FirebaseStorage.getInstance().reference
+        mStorageReference = Firebase.storage.reference
         // mProfileReference = mStorageReference.child("image").child(userId).child(time)
 
         val animation: Animation = AnimationUtils.loadAnimation(
@@ -133,7 +134,9 @@ class DiagnosisFragment : Fragment() {
         var baos: ByteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
-        mProfileReference = mStorageReference.child("image").child(userId).child(time)
+        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+        val savePath = "image/${userId}/${time}"+".jpg"
+        mProfileReference = mStorageReference.child(savePath)
         val uploadTask = mProfileReference.putBytes(data)
 
         uploadTask.addOnFailureListener{

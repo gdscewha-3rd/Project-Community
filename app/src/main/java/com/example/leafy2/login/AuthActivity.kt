@@ -27,6 +27,7 @@ class AuthActivity : AppCompatActivity() {
     lateinit var binding: ActivityAuthBinding
 
     private lateinit var mFirebaseAuth: FirebaseAuth
+    private lateinit var mDatabase: FirebaseDatabase
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mEmail: EditText
     private lateinit var mPassword: EditText
@@ -40,7 +41,8 @@ class AuthActivity : AppCompatActivity() {
 
         // MyApplication.auth = FirebaseAuth.getInstance()
         mFirebaseAuth = Firebase.auth
-        mDatabaseReference = Firebase.database.reference
+        mDatabase = Firebase.database
+        mDatabaseReference = mDatabase.getReference("users")
 
         binding.apply {
 
@@ -97,7 +99,7 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun loginAsAdmin(){
-        mFirebaseAuth.signInWithEmailAndPassword("test20@gmail.com", "test2020")
+        mFirebaseAuth.signInWithEmailAndPassword("admin@gmail.com", "admin1234")
             .addOnCompleteListener(this) { task ->
                 mEmail.text.clear()
                 mPassword.text.clear()
@@ -125,14 +127,10 @@ class AuthActivity : AppCompatActivity() {
                         if(task.isSuccessful){
                             Log.d("createAccount", "success")
                             val firebaseUser: FirebaseUser = mFirebaseAuth.currentUser!!
-                            val account = UserData()
-                            account.setIdToken(firebaseUser.uid)
-                            account.setPassWord(mPassword.text.toString())
-                            account.setUserName(mUsername.text.toString())
-                            account.setEmail(mEmail.text.toString())
+                            val account = UserData(firebaseUser.uid, mEmail.text.toString(), mPassword.text.toString(), mUsername.text.toString() )
 
 
-                            mDatabaseReference.child("users").child(firebaseUser.uid).setValue(account)
+                            mDatabaseReference.child(firebaseUser.uid).setValue(account)
 
                             val intent = Intent(this, MainActivity::class.java)
                             startActivity(intent)

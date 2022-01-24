@@ -2,14 +2,12 @@ package com.example.leafy2
 
 import com.example.leafy2.calendar.RecordData
 
-class UserData {
-    private lateinit var idToken: String
+class UserData (id:String, e: String, p: String, name:String) {
 
-    private lateinit var email: String
-
-    private lateinit var password: String
-
-    private lateinit var userName: String
+    val idToken = id
+    val email = e
+    val password = p
+    val userName = name
 
 
     var recordList: MutableList<RecordData> = mutableListOf()
@@ -34,16 +32,4 @@ class UserData {
         return recList
     }
 
-    fun setIdToken(id: String){
-        idToken = id
-    }
-    fun setEmail(e:String) {
-        email = e
-    }
-    fun setPassWord(p:String){
-        password = p
-    }
-    fun setUserName(u:String){
-        userName = u
-    }
 }
