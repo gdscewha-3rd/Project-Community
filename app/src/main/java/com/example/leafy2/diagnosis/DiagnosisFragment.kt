@@ -6,10 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64.encodeToString
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -38,8 +41,7 @@ import kotlin.math.min
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
-import com.example.leafy2.UserData
-import com.example.leafy2.calendar.RecordData
+import androidx.core.content.FileProvider
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -51,6 +53,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.text.SimpleDateFormat
 
 
@@ -76,10 +79,9 @@ class DiagnosisFragment : Fragment() {
     private lateinit var time: String
 
     private lateinit var mDatabaseReference: DatabaseReference
-    private lateinit var mUser: FirebaseUser
     private lateinit var userId: String
-    private lateinit var mStorageReference: StorageReference
-    lateinit var mProfileReference: StorageReference
+    private lateinit var imageFilePath: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,11 +128,18 @@ class DiagnosisFragment : Fragment() {
 
     private fun addRecord(){
 
+
+
         mDatabaseReference = FirebaseDatabase.getInstance().reference
-        mUser = FirebaseAuth.getInstance().currentUser!!
-        userId = if(mUser!=null) mUser.uid else ""
-        mStorageReference = Firebase.storage.reference
-        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            userId = user.uid
+        }else{
+            // 저장 하려면 로그인을 완료하세요
+            // 로그인 페이지로?
+        }
+        val mStorageReference = FirebaseStorage.getInstance().reference
+        val mSaveReference = mStorageReference.child("leafy_image").child(userId).child(time)
 
 
         Toast.makeText(requireContext(), "기록 중입니다.", Toast.LENGTH_SHORT).show()
@@ -139,10 +148,27 @@ class DiagnosisFragment : Fragment() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
         // mProfileReference = mStorageReference.child("image").child(userId).child(time)
-        val savePath = "image/${userId}/${time}"+".jpg"
-        mProfileReference = mStorageReference.child(savePath)
-        val uploadTask = mProfileReference.putBytes(data)
+        // val savePath = "image/${userId}/${time}"+".jpg"
+        // mProfileReference = mStorageReference.child(savePath)
+        val uploadTask = mSaveReference.putBytes(data)
 
+        val urlTask = uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            mStorageReference.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result
+                Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        /*
         uploadTask.addOnFailureListener{
             Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
         }.addOnSuccessListener(OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
@@ -150,7 +176,7 @@ class DiagnosisFragment : Fragment() {
                 val imageUrl = it.toString()
             }
             Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
-        })
+        })*/
 
     }
 
@@ -170,8 +196,27 @@ class DiagnosisFragment : Fragment() {
     private fun takePhoto(){
         if(checkPermission(Companion.CAMERA)){
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, Companion.CAMERA_REQUEST)
+            if(intent.resolveActivity(requireActivity().packageManager)!=null){
+                val imageFile: File = createImageFile()
+
+                val photoUri = FileProvider.getUriForFile(requireActivity().applicationContext,"com.example.leafy2.provider", imageFile)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                startActivityForResult(intent, CAMERA_REQUEST)
+            }
         }
+    }
+
+    private fun createImageFile(): File {
+        val dateToday: Date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat("yyyyMMdd_hhmmss")
+        time = dateFormat.format(dateToday)
+        val imageFileName = "Img_"+time
+        val storageDir: File? = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(
+            imageFileName, ".jpg", storageDir
+        )
+        imageFilePath = image.absolutePath
+        return image
     }
 
     private fun checkPermission(permissions: Array<out String>): Boolean{
@@ -194,7 +239,7 @@ class DiagnosisFragment : Fragment() {
         grantResults: IntArray
     ) {
         when(requestCode){
-            Companion.CAMERA_REQUEST -> {
+            CAMERA_REQUEST -> {
                 for(grant in grantResults){
                     if(grant != PackageManager.PERMISSION_GRANTED){
                         Toast.makeText(context, "카메라 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
@@ -208,14 +253,17 @@ class DiagnosisFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode==RESULT_OK){
             when (requestCode){
-                Companion.CAMERA_REQUEST -> {
-                    bitmap = data?.extras?.get("data") as Bitmap
+                CAMERA_REQUEST -> {
+                    bitmap = BitmapFactory.decodeFile(imageFilePath)
+
+                    // bitmap = data?.extras?.get("data") as Bitmap
                     image.setImageBitmap(bitmap)
                     classifyImage()
                 }
             }
         }
     }
+
 
     private fun classifyImage(){
         val imageTensorIndex = 0

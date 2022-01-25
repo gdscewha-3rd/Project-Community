@@ -9,8 +9,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.leafy2.R
-import com.example.leafy2.UserData
-import com.example.leafy2.databinding.FragmentAuthBinding
 import com.example.leafy2.databinding.FragmentRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth

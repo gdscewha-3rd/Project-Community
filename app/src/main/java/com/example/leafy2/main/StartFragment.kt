@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.leafy2.MyApplication
 import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -37,7 +36,6 @@ class StartFragment : Fragment() {
         const val MIN_DISTANCE: Float = 1000F
         const val WEATHER_REQUEST: Int = 102
     }
-
 
 
     private lateinit var binding: FragmentStartBinding
@@ -220,6 +218,6 @@ class StartFragment : Fragment() {
     }
 
     fun setGreetingText(){
-        binding?.greetingTv?.setText(MyApplication.username +"님 안녕하세요 : )")
+
     }
 }

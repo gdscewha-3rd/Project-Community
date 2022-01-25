@@ -1,4 +1,4 @@
-package com.example.leafy2
+package com.example.leafy2.user
 
 import com.example.leafy2.calendar.RecordData
 
