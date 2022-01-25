@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.service.autofill.UserData
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
@@ -19,6 +20,7 @@ import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
@@ -47,6 +49,7 @@ class StartFragment : Fragment() {
     private lateinit var mLocationListener: LocationListener
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var mDatabaseRef :DatabaseReference
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -90,10 +93,25 @@ class StartFragment : Fragment() {
 
         binding.toDiagnose.setOnClickListener { goToDiagnosisFragment() }
 
+        mDatabaseRef = FirebaseDatabase.getInstance().reference
+
         val user = FirebaseAuth.getInstance().currentUser
+
         if(user!=null){
-            // 이름 변경
+
+            mDatabaseRef.addValueEventListener(object: ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    val username = (snapshot.child("users").child(user.uid).child("userName").getValue())
+                    setGreetingText(username as String)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
         }
+
+
 
     }
 
@@ -209,7 +227,7 @@ class StartFragment : Fragment() {
             // 로그인 상태, 유저 정보 페이지로 이동
             Toast.makeText(requireContext(), "you are already logged in", Toast.LENGTH_SHORT).show()
             // 임시 로그아웃, 유저 정보 페이지에서 로그아웃 하도록 수정
-            Firebase.auth.signOut()
+            // Firebase.auth.signOut()
         }else{
             // 로그인 페이지로 이동
             findNavController().navigate(R.id.action_startFragment_to_authFragment)
@@ -217,7 +235,7 @@ class StartFragment : Fragment() {
 
     }
 
-    fun setGreetingText(){
-
+    fun setGreetingText(username: String){
+        binding.greetingTv.text = username+"님 안녕하세요 :)"
     }
 }

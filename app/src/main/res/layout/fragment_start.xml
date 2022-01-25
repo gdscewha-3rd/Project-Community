@@ -45,7 +45,7 @@
                 android:paddingVertical="8dp"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/black"
-                android:text="개발자님 안녕하세요 : )"
+                android:text="안녕하세요 : )\n서비스 이용을 위해 로그인 해주세요."
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
