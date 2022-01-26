@@ -14,6 +14,24 @@
         android:layout_width="360dp"
         android:layout_height="600dp"
         android:layout_gravity="center">
+        <FrameLayout
+            android:id="@+id/click_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true">
+            <TextView
+                android:id="@+id/click_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:shadowColor="#000000"
+                android:shadowDx="1.5"
+                android:shadowDy="1.3"
+                android:shadowRadius="1.6"
+                android:text="@string/click"
+                android:textColor="@color/black"
+                android:textSize="25sp" />
+        </FrameLayout>
+
 
         <ImageView
             android:id="@+id/capture_iv"
@@ -23,20 +41,22 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-
-            app:srcCompat="@drawable/leafy_round"
-            tools:srcCompat="@tools:sample/avatars">
+            android:layout_below="@id/click_layout"
+            app:srcCompat="@drawable/take_photo">
 
         </ImageView>
+
 
         <TextView
             android:id="@+id/result_tv"
             android:layout_width="328dp"
-            android:layout_height="164dp"
+            android:layout_height="120dp"
             android:layout_below="@id/capture_iv"
             android:layout_marginHorizontal="16dp"
-            android:padding="16dp"
+            android:background="@drawable/corner_round_box"
             android:gravity="center"
+            android:textSize="18sp"
+            android:padding="16dp"
 
             android:text="사진을 찍어 다육식물의 상태를 진단해보세요!" />
 
@@ -44,16 +64,16 @@
             android:id="@+id/btn_container"
             android:layout_below="@id/result_tv"
             android:layout_width="328dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_margin="16dp"
             android:gravity="right"
-            android:orientation="horizontal"
-            android:visibility="gone">
+            android:orientation="horizontal">
             <Button
                 android:id="@+id/re_capture_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="재촬영"
+                android:visibility="gone"
                 style="?attr/materialButtonOutlinedStyle"/>
 
             <Button
@@ -61,6 +81,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:text="기록하기"/>
         </LinearLayout>
 

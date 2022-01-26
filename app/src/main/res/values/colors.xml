@@ -10,4 +10,14 @@
     <color name="bubble_left">#FFFFFF</color>
     <color name="bot_msg">#ABD3FF</color>
     <color name="user_msg">#FFEBAE</color>
+    <color name="green_main">#81c784</color>
+    <color name="green_light">#b2fab4</color>
+    <color name="green_dark">#519657</color>
+    <color name="darkgreen_main">#519657</color>
+    <color name="darkgreen_light">#81c784</color>
+    <color name="darkgreen_dark">#20672d</color>
+    <color name="crimson_main">#ff8a65</color>
+    <color name="crimson_light">#ffbb93</color>
+    <color name="crimson_dark">#c75b39</color>
+
 </resources>

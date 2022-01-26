@@ -2,27 +2,23 @@ package com.example.leafy2.diagnosis
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.PorterDuffXfermode
-import android.media.Image
+
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64.encodeToString
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentDiagnosisBinding
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
@@ -35,7 +31,6 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.io.File
 import java.io.FileInputStream
 import java.lang.Exception
 import java.nio.MappedByteBuffer
@@ -43,15 +38,34 @@ import java.nio.channels.FileChannel
 import java.util.*
 import kotlin.math.min
 
-class DiagnosisFragment : Fragment() {
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.*
+import androidx.core.content.FileProvider
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
 
-    val CAMERA = arrayOf(android.Manifest.permission.CAMERA)
-    val CAMERA_REQUEST = 98
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
+
+
+class DiagnosisFragment : Fragment() {
 
     private lateinit var binding: FragmentDiagnosisBinding
 
-    private lateinit var resultTv: TextView
+    private lateinit var result: TextView
     private lateinit var image: ImageView
+    private lateinit var save: Button
+    private lateinit var recapture: Button
+    private lateinit var click: TextView
 
     protected lateinit var tflite: Interpreter
     private lateinit var inputImageBuffer: TensorImage
@@ -62,6 +76,12 @@ class DiagnosisFragment : Fragment() {
     private var imageSizeY: Int = 0
     private lateinit var bitmap: Bitmap
     private lateinit var labels: List<String>
+    private lateinit var time: String
+
+    private lateinit var mDatabaseReference: DatabaseReference
+    private lateinit var userId: String
+    private lateinit var imageFilePath: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,17 +91,24 @@ class DiagnosisFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDiagnosisBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        resultTv = binding.resultTv
-        binding.captureIv.setOnClickListener { takePhoto() }
-        image = binding.captureIv
+
+        binding.apply {
+            result = resultTv
+            captureIv.setOnClickListener { takePhoto() }
+            reCaptureBtn.setOnClickListener { takePhoto() }
+            image = captureIv
+            click = clickTv
+            recapture = reCaptureBtn
+            save = saveBtn
+            saveBtn.setOnClickListener { addRecord() }
+        }
 
         try{
             tflite = loadModel(this)?.let { Interpreter(it) }!!
@@ -89,9 +116,71 @@ class DiagnosisFragment : Fragment() {
             e.printStackTrace()
         }
 
+
+
+        val animation: Animation = AnimationUtils.loadAnimation(
+            requireContext(),
+            com.example.leafy2.R.anim.blink
+        )
+        click.startAnimation(animation)
+
     }
 
-    fun loadModel(frag: DiagnosisFragment): MappedByteBuffer?{
+    private fun addRecord(){
+
+
+
+        mDatabaseReference = FirebaseDatabase.getInstance().reference
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            userId = user.uid
+        }else{
+            // 저장 하려면 로그인을 완료하세요
+            // 로그인 페이지로?
+        }
+        val mStorageReference = FirebaseStorage.getInstance().reference
+        val mSaveReference = mStorageReference.child("leafy_image").child(userId).child(time)
+
+
+        Toast.makeText(requireContext(), "기록 중입니다.", Toast.LENGTH_SHORT).show()
+
+        var baos: ByteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
+        // val savePath = "image/${userId}/${time}"+".jpg"
+        // mProfileReference = mStorageReference.child(savePath)
+        val uploadTask = mSaveReference.putBytes(data)
+
+        val urlTask = uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            mStorageReference.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result
+                Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        /*
+        uploadTask.addOnFailureListener{
+            Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
+        }.addOnSuccessListener(OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
+            taskSnapshot.storage.downloadUrl.addOnCompleteListener {
+                val imageUrl = it.toString()
+            }
+            Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
+        })*/
+
+    }
+
+    private fun loadModel(frag: DiagnosisFragment): MappedByteBuffer?{
         val fileDescriptor: AssetFileDescriptor? = frag.activity?.assets?.openFd("model.tflite")
         val inputStream: FileInputStream = FileInputStream(fileDescriptor?.fileDescriptor)
         val fileChannel: FileChannel = inputStream.channel
@@ -105,17 +194,38 @@ class DiagnosisFragment : Fragment() {
     }
 
     private fun takePhoto(){
-        if(checkPermission(CAMERA)){
+        if(checkPermission(Companion.CAMERA)){
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, CAMERA_REQUEST)
+            if(intent.resolveActivity(requireActivity().packageManager)!=null){
+                val imageFile: File = createImageFile()
+
+                val photoUri = FileProvider.getUriForFile(requireActivity().applicationContext,"com.example.leafy2.provider", imageFile)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                startActivityForResult(intent, CAMERA_REQUEST)
+            }
         }
+    }
+
+    private fun createImageFile(): File {
+        val dateToday: Date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat("yyyyMMdd_hhmmss")
+        time = dateFormat.format(dateToday)
+        val imageFileName = "Img_"+time
+        val storageDir: File? = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(
+            imageFileName, ".jpg", storageDir
+        )
+        imageFilePath = image.absolutePath
+        return image
     }
 
     private fun checkPermission(permissions: Array<out String>): Boolean{
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             for( permission in permissions){
                 if(context?.let { ContextCompat.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(context as Activity, permissions, CAMERA_REQUEST)
+                    ActivityCompat.requestPermissions(context as Activity, permissions,
+                        Companion.CAMERA_REQUEST
+                    )
                     return false
                 }
             }
@@ -144,17 +254,20 @@ class DiagnosisFragment : Fragment() {
         if(resultCode==RESULT_OK){
             when (requestCode){
                 CAMERA_REQUEST -> {
-                    bitmap = data?.extras?.get("data") as Bitmap
-                    image?.setImageBitmap(bitmap)
+                    bitmap = BitmapFactory.decodeFile(imageFilePath)
+
+                    // bitmap = data?.extras?.get("data") as Bitmap
+                    image.setImageBitmap(bitmap)
                     classifyImage()
                 }
             }
         }
     }
 
-    fun classifyImage(){
-        var imageTensorIndex = 0
-        var imageShape = tflite.getInputTensor(imageTensorIndex).shape()
+
+    private fun classifyImage(){
+        val imageTensorIndex = 0
+        val imageShape = tflite.getInputTensor(imageTensorIndex).shape()
         imageSizeX = imageShape[2]
         imageSizeY = imageShape[1]
         val imageDataType = tflite.getInputTensor(imageTensorIndex).dataType()
@@ -195,8 +308,7 @@ class DiagnosisFragment : Fragment() {
         return NormalizeOp(0.0f, 1.0f)
     }
 
-    fun showResult(){
-        //labels = context?.let { FileUtil.loadLabels(it, "label.txt") } as List<String>
+    private fun showResult(){
         try {
             labels = activity?.let { FileUtil.loadLabels(it, "label.txt") } as List<String>
         }catch (e: Exception){
@@ -207,12 +319,10 @@ class DiagnosisFragment : Fragment() {
 
 
         val maxValueInMap = (Collections.max(labeledProbability.values))
-        var resultLabelTxt: String?=null
 
         for(entry in labeledProbability.entries){
             if(entry.value==maxValueInMap){
-                resultLabelTxt = entry.key
-                setResultTv(resultLabelTxt)
+                setResultTv(entry.key)
             }
         }
     }
@@ -220,18 +330,31 @@ class DiagnosisFragment : Fragment() {
     fun setResultTv(label: String){
         when(label){
             "건강" -> {
-                resultTv.setText(getString(R.string.result_healthy))
+                result.text = getString(com.example.leafy2.R.string.result_healthy)
             }
             "화상" -> {
-                resultTv.setText(getString(R.string.result_sunburn))
+                result.text = getString(com.example.leafy2.R.string.result_sunburn)
             }
             "과습" -> {
-                resultTv.setText(getString(R.string.result_overwatered))
+                result.text = getString(com.example.leafy2.R.string.result_overwatered)
             }
             "수분부족" ->{
-                resultTv.setText(getString(R.string.result_dry))
+                result.text = getString(com.example.leafy2.R.string.result_dry)
             }
         }
-        binding.btnContainer.visibility = View.VISIBLE
+        recapture.visibility = View.VISIBLE
+        save.visibility = View.VISIBLE
+        click.clearAnimation()
+        click.visibility = View.GONE
+        val dateToday: Date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+        time = dateFormat.format(dateToday)
+
+
+    }
+
+    companion object {
+        private const val CAMERA_REQUEST = 98
+        private val CAMERA = arrayOf(android.Manifest.permission.CAMERA)
     }
 }

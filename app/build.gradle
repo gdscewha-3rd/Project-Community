@@ -27,17 +27,12 @@ android {
     }
 
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/LICENSE.md'
-        exclude 'META-INF/license.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/NOTICE.md'
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
     }
 
     buildFeatures{
@@ -72,6 +67,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.0.3')
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.0.0'
+    implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx:20.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
@@ -92,5 +89,6 @@ dependencies {
     // weather
     implementation 'com.loopj.android:android-async-http:1.4.11'
     implementation 'com.squareup.retrofit2:converter-gson:2.8.8'
+
 
 }

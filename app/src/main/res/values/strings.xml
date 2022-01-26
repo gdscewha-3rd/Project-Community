@@ -3,13 +3,13 @@
     <string name="enter_your_email">Enter email</string>
     <string name="enter_your_password">Enter password</string>
     <string name="login">Login</string>
-    <string name="sign_up">Sign Up</string>
+    <string name="sign_up">Create an account</string>
     <string name="login_with_google">Login with Google</string>
     <string name="logout">logout</string>
     <string name="check_your_email">Please check your email inbox</string>
     <string name="failed_to_send_email">Failed to send email</string>
     <string name="failed_to_signup">Failed to sign up</string>
-    <string name="signup_success">Sign up success</string>
+    <string name="signup_success">Registration complete! Please login.</string>
     <string name="authentication_incomplete">Email authentication is not completed</string>
     <string name="login_failed">Failed to login</string>
     <string name="login_success">Successfully logged in</string>
@@ -28,5 +28,10 @@
     <string name="weather_gray">오늘은 날이 흐리네요 😧 최대한 햇빛을 볼 수 있게 해주세요!</string>
     <string name="weather_error"> 에 대한 정보를 불러올 수 없습니다.</string>
     <string name="weather_cold">날씨가 추워요! 실내에 두고, 냉해를 주의하세요. 🥶</string>
+    <string name="click">Click 👇</string>
+    <string name="tmp">this is tmp string</string>
+    <string name="admin_account">Admin Account</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

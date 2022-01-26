@@ -1,23 +1,27 @@
-package com.example.leafy2
+package com.example.leafy2.main
 
 import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.service.autofill.UserData
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentStartBinding
-import com.example.leafy2.login.AuthActivity
-import com.google.gson.Gson
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.*
+import com.google.firebase.ktx.Firebase
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestParams
@@ -27,25 +31,34 @@ import org.json.JSONObject
 
 class StartFragment : Fragment() {
 
-    val API_KEY: String = "ac5471e3caa6df5bb40fbe111f57c735"
-    val WEATHER_URL: String = "https://api.openweathermap.org/data/2.5/weather"
-    val MIN_TIME: Long = 5000
-    val MIN_DISTANCE: Float = 1000F
-    val WEATHER_REQUEST: Int = 102
+    companion object{
+        const val API_KEY: String = "ac5471e3caa6df5bb40fbe111f57c735"
+        const val WEATHER_URL: String = "https://api.openweathermap.org/data/2.5/weather"
+        const val MIN_TIME: Long = 5000
+        const val MIN_DISTANCE: Float = 1000F
+        const val WEATHER_REQUEST: Int = 102
+    }
 
-    private var binding: FragmentStartBinding?= null
-    private lateinit var weatherState: TextView
-    private lateinit var temperature: TextView
+
+    private lateinit var binding: FragmentStartBinding
+
     private lateinit var weatherTip: TextView
     private lateinit var weatherIcon: ImageView
 
     private lateinit var mLocationManager: LocationManager
     private lateinit var mLocationListener: LocationListener
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var mDatabaseRef :DatabaseReference
+
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
+
+        auth = Firebase.auth
 
     }
 
@@ -61,13 +74,49 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding?.startFragment = this
-        binding?.apply {
-            temperature = temperatureTv
-            weatherState = weatherTv
-            weatherTip = weatherTipTv
-            weatherIcon = weatherIc
+        binding.startFragment = this
+
+
+        viewModel.temperature.observe(
+            viewLifecycleOwner, {temperature -> binding.temperatureTv.text = temperature+" ℃"}
+        )
+        viewModel.weatherState.observe(
+            viewLifecycleOwner, {weatherState -> binding.weatherTv.text = weatherState}
+        )
+
+        weatherTip = binding.weatherTipTv
+        weatherIcon = binding.weatherIc
+
+        binding.toCalendar.setOnClickListener { goToCalendarFragment() }
+
+        binding.toChat.setOnClickListener { goToChatbotFragment() }
+
+        binding.toDiagnose.setOnClickListener { goToDiagnosisFragment() }
+
+        mDatabaseRef = FirebaseDatabase.getInstance().reference
+
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if(user!=null){
+
+            mDatabaseRef.addValueEventListener(object: ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    val username = (snapshot.child("users").child(user.uid).child("userName").getValue())
+                    setGreetingText(username as String)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
         }
+
+
+
+    }
+
+    override fun onStart() {
+        super.onStart()
 
     }
 
@@ -131,67 +180,62 @@ class StartFragment : Fragment() {
                 headers: Array<out Header>?,
                 response: JSONObject?
             ) {
-                val weatherData = WeatherData().fromJson(response)
-                if (weatherData != null) {
-                    updateWeather(weatherData)
-                }
+                viewModel.fromJson(response)
+                updateWeather()
             }
         })
     }
 
-    private fun updateWeather(weather: WeatherData) {
-        temperature.setText(weather.tempString+" ℃")
-        weatherState.setText(weather.weatherType)
-        val resourceID = resources.getIdentifier(weather.icon, "drawable", activity?.packageName)
+    private fun updateWeather() {
+        val resourceID = resources.getIdentifier(viewModel.weatherIcon.value, "drawable", activity?.packageName)
         weatherIcon.setImageResource(resourceID)
-        weatherTip.setText(getNewTip(weather.tempInt, weather.icon))
+        weatherTip.text = getNewTip()
     }
 
-    private fun getNewTip(temperature: Int, weather: String): String{
-        var newTip: String = ""
-        if(temperature>35){
-            newTip = getString(R.string.weather_hot)
-        }else if (temperature in 10..35){
-            if(weather=="clear"){
-                newTip = getString(R.string.weather_hot)
-            }else if(weather=="thunderstorm"||weather=="lightrain"||weather=="rain"){
-                newTip = getString(R.string.weather_humid)
-            }else if(weather=="snow"){
-                newTip = getString(R.string.weather_snow)
-            }else if(weather=="cloudy"||weather=="fog"||weather=="overcast"){
-                newTip = getString(R.string.weather_gray)
-            }else{
-                newTip = weather+getString(R.string.weather_error)
-            }
-        }else{
-            newTip = getString(R.string.weather_cold)
+    private fun getNewTip(): String{
+        return when(viewModel.weatherTip.value){
+            0 -> getString(R.string.weather_hot)
+            1 -> getString(R.string.weather_good)
+            2 -> getString(R.string.weather_humid)
+            3 -> getString(R.string.weather_snow)
+            4 -> getString(R.string.weather_gray)
+            5 -> getString(R.string.weather_error)
+            else -> getString(R.string.weather_cold)
         }
-        return newTip
     }
 
     override fun onPause() {
         super.onPause()
-        if(mLocationManager!=null){
-            mLocationManager.removeUpdates(mLocationListener)
-        }
+        mLocationManager.removeUpdates(mLocationListener)
     }
 
-    fun goToChatbotFragment(){
+    private fun goToChatbotFragment(){
         findNavController().navigate(R.id.action_startFragment_to_chatbotFragment)
     }
 
-    fun goToDiagnosisFragment(){
+    private fun goToDiagnosisFragment(){
         findNavController().navigate(R.id.action_startFragment_to_diagnosisFragment)
     }
 
-    fun setGreetingText(){
-        binding?.greetingTv?.setText(MyApplication.username+"님 안녕하세요 : )")
+    private fun goToCalendarFragment(){
+        findNavController().navigate(R.id.action_startFragment_to_calendarFragment)
     }
 
-    fun goToLoginActivity(){
-        activity?.let{
-            val intent = Intent(context, AuthActivity::class.java)
-            startActivity(intent)
+    private fun goToLoginActivity(){
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            // 로그인 상태, 유저 정보 페이지로 이동
+            Toast.makeText(requireContext(), "you are already logged in", Toast.LENGTH_SHORT).show()
+            // 임시 로그아웃, 유저 정보 페이지에서 로그아웃 하도록 수정
+            // Firebase.auth.signOut()
+        }else{
+            // 로그인 페이지로 이동
+            findNavController().navigate(R.id.action_startFragment_to_authFragment)
         }
+
+    }
+
+    fun setGreetingText(username: String){
+        binding.greetingTv.text = username+"님 안녕하세요 :)"
     }
 }
