@@ -225,7 +225,8 @@ class StartFragment : Fragment() {
         val user = FirebaseAuth.getInstance().currentUser
         if(user!=null){
             // 로그인 상태, 유저 정보 페이지로 이동
-            Toast.makeText(requireContext(), "you are already logged in", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_startFragment_to_userInfoFragment)
+            // Toast.makeText(requireContext(), "you are already logged in", Toast.LENGTH_SHORT).show()
             // 임시 로그아웃, 유저 정보 페이지에서 로그아웃 하도록 수정
             // Firebase.auth.signOut()
         }else{
@@ -234,6 +235,7 @@ class StartFragment : Fragment() {
         }
 
     }
+
 
     fun setGreetingText(username: String){
         binding.greetingTv.text = username+"님 안녕하세요 :)"
