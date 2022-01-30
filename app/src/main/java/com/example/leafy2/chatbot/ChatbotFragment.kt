@@ -79,7 +79,7 @@ class ChatbotFragment : Fragment() {
 
     private fun getResponse(msg: String) {
         chatModelArrayList.add(ChatModel(msg, USER_KEY))
-        chatModelArrayList.add(ChatModel("This is bot msg", BOT_KEY)) // 임시 bot msg
+        chatModelArrayList.add(ChatModel("This is bot message", BOT_KEY)) // 임시 bot msg
         chatbotAdapter.notifyDataSetChanged()
 
         // retrofit, flask 통신

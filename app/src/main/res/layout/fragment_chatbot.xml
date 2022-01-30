@@ -4,11 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".chatbot.ChatbotFragment">
 
-    <data>
-        <variable
-            name="chatbotFragment"
-            type="com.example.leafy2.chatbot.ChatbotFragment" />
-    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
