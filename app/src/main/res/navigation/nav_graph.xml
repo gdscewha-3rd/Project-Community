@@ -44,8 +44,8 @@
     <fragment
         android:id="@+id/authFragment"
         android:name="com.example.leafy2.user.AuthFragment"
-        android:label="fragment_auth"
-        tools:layout="@layout/fragment_auth" >
+        android:label="로그인"
+        tools:layout="@layout/fragment_auth">
         <action
             android:id="@+id/action_authFragment_to_startFragment"
             app:destination="@id/startFragment"
@@ -58,8 +58,8 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.leafy2.user.RegisterFragment"
-        android:label="fragment_register"
-        tools:layout="@layout/fragment_register" >
+        android:label="가입하기"
+        tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_registerFragment_to_startFragment"
             app:destination="@id/startFragment"
@@ -72,6 +72,6 @@
     <fragment
         android:id="@+id/userInfoFragment"
         android:name="com.example.leafy2.user.UserInfoFragment"
-        android:label="fragment_user_info"
+        android:label="MY PAGE"
         tools:layout="@layout/fragment_user_info" />
 </navigation>
