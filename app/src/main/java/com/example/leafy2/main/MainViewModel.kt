@@ -7,6 +7,20 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class MainViewModel: ViewModel() {
+
+    private val _username = MutableLiveData("")
+    val username: LiveData<String> = _username
+    private val _email = MutableLiveData("")
+    val email: LiveData<String> = _email
+
+    fun setUsername(n: String){
+        _username.value = n
+    }
+
+    fun setEmail(e: String){
+        _email.value = e
+    }
+
     private val _weatherState = MutableLiveData("")
     val weatherState: LiveData<String> get() = _weatherState
     private val _weatherId = MutableLiveData(0)

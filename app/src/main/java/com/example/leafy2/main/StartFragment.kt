@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.leafy2.R
@@ -51,7 +52,7 @@ class StartFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var mDatabaseRef :DatabaseReference
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +105,13 @@ class StartFragment : Fragment() {
 
                     val username = (snapshot.child("users").child(user.uid).child("userName").getValue())
                     setGreetingText(username as String)
+
+                    viewModel.setUsername(username)
+
+                    val email = (snapshot.child("users").child(user.uid).child("email").getValue())
+                    viewModel.setEmail(email as String)
+
+
                 }
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
