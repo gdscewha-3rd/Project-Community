@@ -39,7 +39,7 @@
     <fragment
         android:id="@+id/calendarFragment"
         android:name="com.example.leafy2.calendar.CalendarFragment"
-        android:label="fragment_calendar"
+        android:label="달력"
         tools:layout="@layout/fragment_calendar" />
     <fragment
         android:id="@+id/authFragment"

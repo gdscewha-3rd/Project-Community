@@ -149,9 +149,7 @@ class DiagnosisFragment : Fragment() {
         var baos: ByteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
-        // mProfileReference = mStorageReference.child("image").child(userId).child(time)
-        // val savePath = "image/${userId}/${time}"+".jpg"
-        // mProfileReference = mStorageReference.child(savePath)
+
         var uploadTask = mSaveReference.putBytes(data)
 
         uploadTask.addOnFailureListener{
@@ -160,32 +158,7 @@ class DiagnosisFragment : Fragment() {
             Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
         }
 
-        /*
-        val urlTask = uploadTask.continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let {
-                    throw it
-                }
-            }
-            mStorageReference.downloadUrl
-        }.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val downloadUri = task.result
-                Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
-            }
-        }*/
 
-        /*
-        uploadTask.addOnFailureListener{
-            Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
-        }.addOnSuccessListener(OnSuccessListener<UploadTask.TaskSnapshot> { taskSnapshot ->
-            taskSnapshot.storage.downloadUrl.addOnCompleteListener {
-                val imageUrl = it.toString()
-            }
-            Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
-        })*/
 
     }
 
@@ -264,8 +237,6 @@ class DiagnosisFragment : Fragment() {
             when (requestCode){
                 CAMERA_REQUEST -> {
                     bitmap = BitmapFactory.decodeFile(imageFilePath)
-
-                    //bitmap = data?.extras?.get("data") as Bitmap
 
 
                     image.setImageBitmap(bitmap)
