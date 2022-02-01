@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 
 import android.os.Build
 import android.os.Bundle
@@ -54,6 +55,7 @@ import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 
 
@@ -150,8 +152,15 @@ class DiagnosisFragment : Fragment() {
         // mProfileReference = mStorageReference.child("image").child(userId).child(time)
         // val savePath = "image/${userId}/${time}"+".jpg"
         // mProfileReference = mStorageReference.child(savePath)
-        val uploadTask = mSaveReference.putBytes(data)
+        var uploadTask = mSaveReference.putBytes(data)
 
+        uploadTask.addOnFailureListener{
+            Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
+        }.addOnSuccessListener {
+            Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
+        }
+
+        /*
         val urlTask = uploadTask.continueWithTask { task ->
             if (!task.isSuccessful) {
                 task.exception?.let {
@@ -166,7 +175,7 @@ class DiagnosisFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
             }
-        }
+        }*/
 
         /*
         uploadTask.addOnFailureListener{
@@ -256,7 +265,9 @@ class DiagnosisFragment : Fragment() {
                 CAMERA_REQUEST -> {
                     bitmap = BitmapFactory.decodeFile(imageFilePath)
 
-                    // bitmap = data?.extras?.get("data") as Bitmap
+                    //bitmap = data?.extras?.get("data") as Bitmap
+
+
                     image.setImageBitmap(bitmap)
                     classifyImage()
                 }
