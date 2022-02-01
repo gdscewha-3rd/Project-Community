@@ -31,7 +31,7 @@ class ThumbnailAdapter(
         holder.image.setImageResource(item.imageResourceId)
         holder.title.text = item.title
         holder.image.setOnClickListener {
-            val action = NewsFragmentDirections.actionNewsFragmentToContentsFragment()
+            val action = NewsFragmentDirections.actionNewsFragmentToContentsFragment(index = position)
             holder.view.findNavController().navigate(action)
         }
     }

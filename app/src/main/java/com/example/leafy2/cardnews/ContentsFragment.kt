@@ -15,11 +15,18 @@ class ContentsFragment : Fragment() {
 
     private lateinit var binding: FragmentContentsBinding
     private lateinit var mPager: ViewPager2
+    private var idx: Int = 0
+
+    companion object{
+        const val INDEX = "index"
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        arguments?.let{
+            idx = it.getInt(INDEX)
+        }
     }
 
     override fun onCreateView(
@@ -36,7 +43,7 @@ class ContentsFragment : Fragment() {
         mPager = binding.pager
         mPager.setPageTransformer(ZoomOutPageTransformer())
 
-        val mDataset = DataSource().loadContents()
+        val mDataset = DataSource().loadContents(idx)
         val pagerAdapter = ContentsAdapter(requireContext(), mDataset)
         mPager.adapter = pagerAdapter
     }

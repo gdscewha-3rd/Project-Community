@@ -95,6 +95,10 @@
     <fragment
         android:id="@+id/contentsFragment"
         android:name="com.example.leafy2.cardnews.ContentsFragment"
-        android:label="fragment_contents"
-        tools:layout="@layout/fragment_contents" />
+        android:label="카드뉴스"
+        tools:layout="@layout/fragment_contents">
+        <argument
+            android:name="index"
+            app:argType="integer" />
+    </fragment>
 </navigation>
