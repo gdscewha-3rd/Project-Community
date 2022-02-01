@@ -94,6 +94,8 @@ class StartFragment : Fragment() {
 
         binding.toDiagnose.setOnClickListener { goToDiagnosisFragment() }
 
+        binding.toNews.setOnClickListener { goToNewsFragment() }
+
         mDatabaseRef = FirebaseDatabase.getInstance().reference
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -242,6 +244,10 @@ class StartFragment : Fragment() {
             findNavController().navigate(R.id.action_startFragment_to_authFragment)
         }
 
+    }
+
+    private fun goToNewsFragment(){
+        findNavController().navigate(R.id.action_startFragment_to_newsFragment)
     }
 
 

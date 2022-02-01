@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_startFragment_to_userInfoFragment"
             app:destination="@id/userInfoFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_newsFragment"
+            app:destination="@id/newsFragment" />
     </fragment>
     <fragment
         android:id="@+id/diagnosisFragment"
@@ -80,4 +83,18 @@
             app:popUpTo="@id/startFragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/newsFragment"
+        android:name="com.example.leafy2.cardnews.NewsFragment"
+        android:label="카드뉴스"
+        tools:layout="@layout/fragment_news" >
+        <action
+            android:id="@+id/action_newsFragment_to_contentsFragment"
+            app:destination="@id/contentsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/contentsFragment"
+        android:name="com.example.leafy2.cardnews.ContentsFragment"
+        android:label="fragment_contents"
+        tools:layout="@layout/fragment_contents" />
 </navigation>
