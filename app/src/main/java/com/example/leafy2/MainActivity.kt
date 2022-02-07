@@ -7,6 +7,9 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -23,6 +26,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         navController = navHostFragment.navController
 
         setupActionBarWithNavController(navController)
+
+        val auth: FirebaseAuth = Firebase.auth
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user!=null){
+            Firebase.auth.signOut()
+        }
 
     }
 

@@ -59,7 +59,6 @@ class StartFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        auth = Firebase.auth
 
     }
 
@@ -98,6 +97,12 @@ class StartFragment : Fragment() {
 
         mDatabaseRef = FirebaseDatabase.getInstance().reference
 
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
         val user = FirebaseAuth.getInstance().currentUser
 
         if(user!=null){
@@ -120,14 +125,6 @@ class StartFragment : Fragment() {
                 }
             })
         }
-
-
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -151,6 +148,7 @@ class StartFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         getWeatherInCurrentLocation()
+
     }
 
     private fun getWeatherInCurrentLocation(){
