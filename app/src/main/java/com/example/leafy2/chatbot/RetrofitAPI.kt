@@ -6,5 +6,5 @@ import retrofit2.http.Url
 
 interface RetrofitAPI {
     @GET()
-    fun getMessage(@Url url: String) : Call<MessageModel>
+    fun getMessage(@Url url: String): Call<MessageModel>
 }

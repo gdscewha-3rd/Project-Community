@@ -1,14 +1,11 @@
 package com.example.leafy2.cardnews
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.example.leafy2.R
-import com.example.leafy2.databinding.FragmentDiagnosisBinding
 import com.example.leafy2.databinding.FragmentNewsBinding
 
 
@@ -25,7 +22,7 @@ class NewsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNewsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -35,7 +32,7 @@ class NewsFragment : Fragment() {
 
         val mDataset = DataSource().loadThumbnail()
         recyclerView = binding.recyclerView
-        recyclerView.adapter = ThumbnailAdapter(requireContext(), mDataset)
+        recyclerView.adapter = ThumbnailAdapter(mDataset)
 
 
     }

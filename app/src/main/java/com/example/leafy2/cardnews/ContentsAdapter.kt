@@ -1,6 +1,5 @@
 package com.example.leafy2.cardnews
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,11 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.leafy2.R
 
 class ContentsAdapter(
-    private val context: Context,
     private val dataset: List<ContentsData>
-    ): RecyclerView.Adapter<ContentsAdapter.ItemViewHolder>() {
+) : RecyclerView.Adapter<ContentsAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val image: ImageView = view.findViewById(R.id.contents_img)
     }
 

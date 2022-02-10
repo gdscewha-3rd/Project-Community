@@ -5,11 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.leafy2.databinding.FragmentContentsBinding
-
-private const val NUM_PAGES = 5
 
 class ContentsFragment : Fragment() {
 
@@ -17,14 +14,14 @@ class ContentsFragment : Fragment() {
     private lateinit var mPager: ViewPager2
     private var idx: Int = 0
 
-    companion object{
+    companion object {
         const val INDEX = "index"
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let{
+        arguments?.let {
             idx = it.getInt(INDEX)
         }
     }
@@ -32,7 +29,7 @@ class ContentsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentContentsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -44,10 +41,9 @@ class ContentsFragment : Fragment() {
         mPager.setPageTransformer(ZoomOutPageTransformer())
 
         val mDataset = DataSource().loadContents(idx)
-        val pagerAdapter = ContentsAdapter(requireContext(), mDataset)
+        val pagerAdapter = ContentsAdapter(mDataset)
         mPager.adapter = pagerAdapter
     }
-
 
 
 }

@@ -6,18 +6,18 @@ import androidx.lifecycle.ViewModel
 import org.json.JSONException
 import org.json.JSONObject
 
-class MainViewModel: ViewModel() {
+class MainViewModel : ViewModel() {
 
     private val _username = MutableLiveData("")
     val username: LiveData<String> = _username
     private val _email = MutableLiveData("")
     val email: LiveData<String> = _email
 
-    fun setUsername(n: String){
+    fun setUsername(n: String) {
         _username.value = n
     }
 
-    fun setEmail(e: String){
+    fun setEmail(e: String) {
         _email.value = e
     }
 
@@ -40,15 +40,17 @@ class MainViewModel: ViewModel() {
 
 
     fun fromJson(jsonObject: JSONObject?) {
-        try{
+        try {
             _weatherId.value = jsonObject?.getJSONArray("weather")?.getJSONObject(0)?.getInt("id")!!
-            _weatherState.value = jsonObject.getJSONArray("weather").getJSONObject(0).getString("main")
+            _weatherState.value =
+                jsonObject.getJSONArray("weather").getJSONObject(0).getString("main")
             _weatherIcon.value = _weatherId.value?.let { updateWeatherIcon(it) }
 
-            val roundedTemp: Int = (jsonObject.getJSONObject("main").getDouble("temp")-273.15).toInt()
+            val roundedTemp: Int =
+                (jsonObject.getJSONObject("main").getDouble("temp") - 273.15).toInt()
             _temperature.value = roundedTemp.toString()
 
-        }catch (e: JSONException){
+        } catch (e: JSONException) {
             e.printStackTrace()
 
         }
@@ -86,24 +88,24 @@ class MainViewModel: ViewModel() {
 
     }
 
-    private fun getNewTipID(): Int{
+    private fun getNewTipID(): Int {
         var newTip: Int = 0
 
-        if(_tempInt.value!! > 35){
+        if (_tempInt.value!! > 35) {
             newTip = 0
-        }else if (_tempInt.value!! in 10..35){
-            if(_weatherIcon.value=="clear"){
+        } else if (_tempInt.value!! in 10..35) {
+            if (_weatherIcon.value == "clear") {
                 newTip = 1
-            }else if(_weatherIcon.value=="thunderstorm"||_weatherIcon.value=="lightrain"||_weatherIcon.value=="rain"){
+            } else if (_weatherIcon.value == "thunderstorm" || _weatherIcon.value == "lightrain" || _weatherIcon.value == "rain") {
                 newTip = 2
-            }else if(_weatherIcon.value=="snow"){
+            } else if (_weatherIcon.value == "snow") {
                 newTip = 3
-            }else if(_weatherIcon.value=="cloudy"||_weatherIcon.value=="fog"||_weatherIcon.value=="overcast"){
+            } else if (_weatherIcon.value == "cloudy" || _weatherIcon.value == "fog" || _weatherIcon.value == "overcast") {
                 newTip = 4
-            }else{
+            } else {
                 newTip = 5
             }
-        }else{
+        } else {
             newTip = 6
         }
         return newTip

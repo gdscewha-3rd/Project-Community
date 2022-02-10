@@ -12,15 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.leafy2.R
 import com.example.leafy2.databinding.FragmentChatbotBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 
 class ChatbotFragment : Fragment() {
-    private var _binding: FragmentChatbotBinding?= null
+    private var _binding: FragmentChatbotBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var recyclerView: RecyclerView
@@ -28,9 +23,9 @@ class ChatbotFragment : Fragment() {
     private lateinit var chatbotAdapter: ChatbotAdapter
     private lateinit var sendBtn: FloatingActionButton
 
-    lateinit var chatModelArrayList: ArrayList<ChatModel>
+    private lateinit var chatModelArrayList: ArrayList<ChatModel>
 
-    companion object{
+    companion object {
         const val USER_KEY: String = "user"
         const val BOT_KEY: String = "bot"
         const val BASE_URL: String = ""
@@ -45,10 +40,9 @@ class ChatbotFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentChatbotBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,8 +53,8 @@ class ChatbotFragment : Fragment() {
             sendBtn = sendFAB
         }
 
-        chatModelArrayList = ArrayList<ChatModel>()
-        chatbotAdapter = ChatbotAdapter(requireContext(), chatModelArrayList)
+        chatModelArrayList = ArrayList()
+        chatbotAdapter = ChatbotAdapter(chatModelArrayList)
         recyclerView.adapter = chatbotAdapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         sendBtn.setOnClickListener {
@@ -68,9 +62,10 @@ class ChatbotFragment : Fragment() {
         }
     }
 
-    fun sendMsg(){
-        if(userMsgET.text.toString().isEmpty()){
-            Toast.makeText(context, getString(R.string.error_enter_your_msg), Toast.LENGTH_SHORT).show()
+    private fun sendMsg() {
+        if (userMsgET.text.toString().isEmpty()) {
+            Toast.makeText(context, getString(R.string.error_enter_your_msg), Toast.LENGTH_SHORT)
+                .show()
             return
         }
         getResponse(userMsgET.text.toString())

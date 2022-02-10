@@ -30,12 +30,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val auth: FirebaseAuth = Firebase.auth
 
         val user = FirebaseAuth.getInstance().currentUser
-        if(user!=null){
+        if (user != null) {
             Firebase.auth.signOut()
         }
 
     }
-
 
 
     override fun onSupportNavigateUp(): Boolean {

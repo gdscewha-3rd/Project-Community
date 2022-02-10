@@ -7,20 +7,28 @@ import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Base64.encodeToString
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
 import com.example.leafy2.databinding.FragmentDiagnosisBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.TensorOperator
@@ -32,31 +40,14 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.io.FileInputStream
-import java.lang.Exception
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
-import java.util.*
-import kotlin.math.min
-
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.*
-import androidx.core.content.FileProvider
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.*
-
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.UploadTask
-import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
+import java.io.FileInputStream
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.min
 
 
 class DiagnosisFragment : Fragment() {
@@ -112,12 +103,11 @@ class DiagnosisFragment : Fragment() {
             saveBtn.setOnClickListener { addRecord() }
         }
 
-        try{
+        try {
             tflite = loadModel(this)?.let { Interpreter(it) }!!
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-
 
 
         val animation: Animation = AnimationUtils.loadAnimation(
@@ -128,15 +118,14 @@ class DiagnosisFragment : Fragment() {
 
     }
 
-    private fun addRecord(){
-
+    private fun addRecord() {
 
 
         mDatabaseReference = FirebaseDatabase.getInstance().reference
         val user = FirebaseAuth.getInstance().currentUser
-        if(user!=null){
+        if (user != null) {
             userId = user.uid
-        }else{
+        } else {
             // 저장 하려면 로그인을 완료하세요
             // 로그인 페이지로?
         }
@@ -146,42 +135,45 @@ class DiagnosisFragment : Fragment() {
 
         Toast.makeText(requireContext(), "기록 중입니다.", Toast.LENGTH_SHORT).show()
 
-        var baos: ByteArrayOutputStream = ByteArrayOutputStream()
+        val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
 
-        var uploadTask = mSaveReference.putBytes(data)
+        val uploadTask = mSaveReference.putBytes(data)
 
-        uploadTask.addOnFailureListener{
+        uploadTask.addOnFailureListener {
             Toast.makeText(requireContext(), "업로드 실패", Toast.LENGTH_SHORT).show()
         }.addOnSuccessListener {
             Toast.makeText(requireContext(), "기록 완료", Toast.LENGTH_SHORT).show()
         }
 
 
-
     }
 
-    private fun loadModel(frag: DiagnosisFragment): MappedByteBuffer?{
+    private fun loadModel(frag: DiagnosisFragment): MappedByteBuffer? {
         val fileDescriptor: AssetFileDescriptor? = frag.activity?.assets?.openFd("model.tflite")
-        val inputStream: FileInputStream = FileInputStream(fileDescriptor?.fileDescriptor)
+        val inputStream = FileInputStream(fileDescriptor?.fileDescriptor)
         val fileChannel: FileChannel = inputStream.channel
         val startOffset: Long? = fileDescriptor?.startOffset
         val declaredLength: Long? = fileDescriptor?.declaredLength
 
-        if(startOffset!=null&&declaredLength!=null)
+        if (startOffset != null && declaredLength != null)
             return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
 
         return null
     }
 
-    private fun takePhoto(){
-        if(checkPermission(Companion.CAMERA)){
+    private fun takePhoto() {
+        if (checkPermission(CAMERA)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if(intent.resolveActivity(requireActivity().packageManager)!=null){
+            if (intent.resolveActivity(requireActivity().packageManager) != null) {
                 val imageFile: File = createImageFile()
 
-                val photoUri = FileProvider.getUriForFile(requireActivity().applicationContext,"com.example.leafy2.provider", imageFile)
+                val photoUri = FileProvider.getUriForFile(
+                    requireActivity().applicationContext,
+                    "com.example.leafy2.provider",
+                    imageFile
+                )
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
                 startActivityForResult(intent, CAMERA_REQUEST)
             }
@@ -189,11 +181,12 @@ class DiagnosisFragment : Fragment() {
     }
 
     private fun createImageFile(): File {
-        val dateToday: Date = Date(System.currentTimeMillis())
+        val dateToday = Date(System.currentTimeMillis())
         val dateFormat = SimpleDateFormat("yyyyMMdd_hhmmss")
         time = dateFormat.format(dateToday)
-        val imageFileName = "Img_"+time
-        val storageDir: File? = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFileName = "Img_" + time
+        val storageDir: File? =
+            requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val image = File.createTempFile(
             imageFileName, ".jpg", storageDir
         )
@@ -201,11 +194,17 @@ class DiagnosisFragment : Fragment() {
         return image
     }
 
-    private fun checkPermission(permissions: Array<out String>): Boolean{
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            for( permission in permissions){
-                if(context?.let { ContextCompat.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(context as Activity, permissions,
+    private fun checkPermission(permissions: Array<out String>): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (permission in permissions) {
+                if (context?.let {
+                        ContextCompat.checkSelfPermission(
+                            it,
+                            permission
+                        )
+                    } != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                        context as Activity, permissions,
                         Companion.CAMERA_REQUEST
                     )
                     return false
@@ -220,10 +219,10 @@ class DiagnosisFragment : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when(requestCode){
+        when (requestCode) {
             CAMERA_REQUEST -> {
-                for(grant in grantResults){
-                    if(grant != PackageManager.PERMISSION_GRANTED){
+                for (grant in grantResults) {
+                    if (grant != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(context, "카메라 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -233,8 +232,8 @@ class DiagnosisFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode==RESULT_OK){
-            when (requestCode){
+        if (resultCode == RESULT_OK) {
+            when (requestCode) {
                 CAMERA_REQUEST -> {
                     bitmap = BitmapFactory.decodeFile(imageFilePath)
 
@@ -247,7 +246,7 @@ class DiagnosisFragment : Fragment() {
     }
 
 
-    private fun classifyImage(){
+    private fun classifyImage() {
         val imageTensorIndex = 0
         val imageShape = tflite.getInputTensor(imageTensorIndex).shape()
         imageSizeX = imageShape[2]
@@ -259,7 +258,8 @@ class DiagnosisFragment : Fragment() {
         val probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType()
 
         inputImageBuffer = TensorImage(imageDataType)
-        outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType)
+        outputProbabilityBuffer =
+            TensorBuffer.createFixedSize(probabilityShape, probabilityDataType)
         probabilityProcessor = TensorProcessor.Builder().add(getPostProcessNormalizeOp()).build()
 
         inputImageBuffer = loadImage(bitmap)
@@ -283,34 +283,38 @@ class DiagnosisFragment : Fragment() {
         return imageProcessor.process(inputImageBuffer)
     }
 
-    private fun getPostProcessNormalizeOp(): TensorOperator{
+    private fun getPostProcessNormalizeOp(): TensorOperator {
         return NormalizeOp(0.0f, 255.0f)
     }
-    private fun getPreProcessNormalizeOp(): TensorOperator{
+
+    private fun getPreProcessNormalizeOp(): TensorOperator {
         return NormalizeOp(0.0f, 1.0f)
     }
 
-    private fun showResult(){
+    private fun showResult() {
         try {
             labels = activity?.let { FileUtil.loadLabels(it, "label.txt") } as List<String>
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        val labeledProbability: Map<String, Float> = TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer)).mapWithFloatValue
+        val labeledProbability: Map<String, Float> = TensorLabel(
+            labels,
+            probabilityProcessor.process(outputProbabilityBuffer)
+        ).mapWithFloatValue
 
 
         val maxValueInMap = (Collections.max(labeledProbability.values))
 
-        for(entry in labeledProbability.entries){
-            if(entry.value==maxValueInMap){
+        for (entry in labeledProbability.entries) {
+            if (entry.value == maxValueInMap) {
                 setResultTv(entry.key)
             }
         }
     }
 
-    fun setResultTv(label: String){
-        when(label){
+    fun setResultTv(label: String) {
+        when (label) {
             "건강" -> {
                 result.text = getString(com.example.leafy2.R.string.result_healthy)
             }
@@ -320,7 +324,7 @@ class DiagnosisFragment : Fragment() {
             "과습" -> {
                 result.text = getString(com.example.leafy2.R.string.result_overwatered)
             }
-            "수분부족" ->{
+            "수분부족" -> {
                 result.text = getString(com.example.leafy2.R.string.result_dry)
             }
         }
